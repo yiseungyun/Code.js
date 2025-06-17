@@ -1,6 +1,7 @@
 import { rest } from "msw";
 import { userData } from "./userData";
 import type { User } from "../types";
+import Hangul from 'hangul-js';
 
 export const handlers = [
   rest.get("/api/users", (req, res, ctx) => {
@@ -8,9 +9,12 @@ export const handlers = [
     const sort = req.url.searchParams.get("sort") as keyof User || "name";
     const order = req.url.searchParams.get("order") || "asc";
 
-    const filteredUsers = userData.filter(user =>
-      user.name.toLowerCase().includes(search.toLowerCase())
-    );
+    const filteredUsers = userData.filter(user => {
+      const disassembledSearch = Hangul.disassemble(search).join("");
+      const disassembledName = Hangul.disassemble(user.name).join("");
+
+      return disassembledName.includes(disassembledSearch);
+    });
 
     const sortedUsers = filteredUsers.sort((a, b) => {
       const aValue = a[sort];
