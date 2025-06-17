@@ -35,6 +35,16 @@ export const worker = setupWorker(...handlers);
 - setupWorker: 브라우저에서 동작하는 가짜 서비스 워커를 설정한다.
 - 내부적으로 Service Worker API를 이용해 브라우저 레벨에서 fetch 요청을 가로챈다.
 
+```tsx
+if (import.meta.env.DEV) {
+  const { worker } = await import('./browser.ts');
+  await worker.start();
+}
+```
+
+- 앱의 진입 점에 해당 코드를 작성해준다.
+- 개발 모드에서 서비스 워커를 실행하는 코드이다.
+
 ### MSW에서 다양한 쿼리 파라미터에 대한 응답 처리
 > 요청에서 쿼리 파라미터를 읽어 정렬해줄 수 있다.
 
