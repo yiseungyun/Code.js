@@ -1,7 +1,12 @@
-export default function AutoCompleteList({ autoList }: { autoList: string[] }) {
+import type { User } from "../types";
+
+export default function AutoCompleteList({ autoCompleteList }: { autoCompleteList: User[] }) {
   return (
     <ul>
-      {autoList.map((autoTerm) => <li>{autoTerm}</li>)}
+      {autoCompleteList.map((user) => {
+        return (
+          <li key={user.id}>{user.name}</li>)
+      })}
     </ul>
   );
 }
