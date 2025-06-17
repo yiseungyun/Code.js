@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 
 if (import.meta.env.DEV) {
-  const { worker } = await import('./code/mocks/browser.ts');
+  const { worker } = await import('./browser.ts');
   await worker.start();
 }
 
