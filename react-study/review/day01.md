@@ -95,3 +95,38 @@ rest.get("/api/users", (req, res, ctx) => {
 - 조건부 응답 로직을 사용할 수 있다.
 - 로딩, 에러, 타임아웃 등 다양한 상황을 시뮬레이션 가능하다.
 - 클라이언트 코드에 가짜 서버를 붙이는 것처럼 작동한다.
+
+## ⏰ 디바운싱(Debouncing)
+> 짧은 시간 내에 연속적으로 발생하는 이벤트가 있을 때, 마지막 이벤트만 처리하도록 지연시키는 방식으로 불필요한 요청을 줄이는데 사용한다.
+
+**코드 예시**
+
+```tsx
+function useDebounce(value, delay = 300) {
+  const [debounced, setDebouced] = useState(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+
+  return debounced;
+}
+```
+
+```tsx
+const [search, setSearch] = useState('');
+const debouncedSearch = useDebounce(search, 300);
+
+useEffect(() => {
+  if (!debouncedSearch) return;
+  fetch(`/api/users?search=${debouncedSearch}`)
+    .then(res => res.json())
+    .then(setUsers);
+}, [debouncedSearch]);
+```
+
+- useDebounce 훅은 search 값이 바뀔 때마다 300ms동안 아무 입력이 없을 때만 debouncedSearch 값을 갱신한다.
+- 사용자가 타이핑을 멈춘 후 300ms가 지나야 실제 API 요청을 위한 값이 변경된다.
+
+> 디바운싱과 달리 스로틀링은 일정 주기마다 실행하는 것으로, 스크롤이나 리사이즈 이벤트가 발생할 때 사용한다.
