@@ -1,6 +1,6 @@
 import { useState } from "react";
-import AutoCompleteList from "./AutoCompleteList";
-import type { User } from "./types";
+import AutoCompleteList from "../AutoCompleteList";
+import type { User } from "../types";
 
 export default function SearchBar() {
   const [autoList, setAutoList] = useState<string[]>([]);
