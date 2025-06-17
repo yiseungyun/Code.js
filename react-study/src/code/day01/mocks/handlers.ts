@@ -1,12 +1,6 @@
 import { rest } from "msw";
 import { userData } from "./userData";
-
-type User = {
-  id: number;
-  name: string;
-  email: string;
-  registeredAt: string;
-};
+import type { User } from "../types";
 
 export const handlers = [
   rest.get("/api/users", (req, res, ctx) => {
