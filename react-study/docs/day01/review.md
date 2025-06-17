@@ -46,7 +46,7 @@
 
 > 실제 서비스들을 살펴본 결과 인기 검색어를 보여주는 방식이지, 데이터를 일부 잘라서 보여주는 방식은 아니었다. 그런데 사용자를 검색하는 것이고 검색량을 저장하는 기능은 없기 때문에 아무것도 입력되지 않을 때 자동 완성 기능은 동작하지 않도록 결정했다.
 
-### 3. 컴포넌트 설계
+### 3. 컴포넌트 설계 수정하기
 index.tsx에 다음과 같이 컴포넌트가 존재한다.
 ```
 <검색 창/>
@@ -63,10 +63,59 @@ index.tsx에 다음과 같이 컴포넌트가 존재한다.
 - 그렇다면 검색 결과를 보여주기 위해 검색 창에서 데이터를 받아와 저장한 것을 검색 결과가 사용할 수 있게 해야한다.
 
 **개선할 수 있는 방법**
+
 상태를 부모 컴포넌트에서 관리한다.
 - 부모 컴포넌트가 검색하고 있는 검색어의 상태와 검색할 최종 검색어를 관리한다.
 - 검색 창과 검색 결과 컴포넌트에 props로 전달한다.
 
+### 4. 디바운싱 적용하기
+> 디바운싱은 여러 이벤트가 발생할 때 마지막 이벤트만 처리하도록 하는 것이다.
+
+디바운싱은 300ms로 설정하기 때문에 사용자가 마지막 행동을 하고 300ms가 지나는 동안 다른 행동이 없다면 검색어에 대한 요청을 보낸다.
+
+**useDebounce 훅**
+```ts
+export default function useDebounce<T>(value: T, delay: number) {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(timer);
+  }, [value, delay]);
+
+  return debouncedValue;
+}
+```
+
+- 값과 디바운싱 적용할 시간을 delay로 전달한다.
+- 컴포넌트에서 useDebounce 훅을 호출하고 value는 사용자가 입력하는 검색어, delay는 300으로 전달한다.
+- 만약 사용자가 검색어를 입력하는 중이라면 검색어인 value 값은 계속 바뀌며 전달된다.
+  - useDebounce 훅은 value 값이 변경되면 기존 타이머는 제거하고 타이머를 다시 설정하고 debouncedValue 값을 전달한 delay 시간 후 변경한다.
+  - 특정 사용자가 처음 a를 입력하게 되면, 0.3초가 지나기 전까지는 debouncedValue 값을 수정하지 않는 것이다.
+
+```tsx
+const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+useEffect(() => {
+  if (debouncedSearchTerm === "") {
+    setAutoCompleteList([]);
+    return;
+  }
+
+  fetch(`/api/users?search=${encodeURIComponent(debouncedSearchTerm)}&sort=name&order=asc`)
+    .then(res => res.json())
+    .then(data => setAutoCompleteList(data));
+}, [debouncedSearchTerm]);
+
+function handleAutoComplete(event: React.ChangeEvent<HTMLInputElement>) {
+  setSearchTerm(event.target.value);
+}
+```
+
+- `debouncedSearchTerm`은 useDebounce 훅에서 반환하는 값이다.
+  - 해당 값은 사용자가 처음 입력한 후 0.3초 간 변경되지 않지만, 새로운 값을 입력하면 0.3초 뒤 그 값으로 변경된다.
+- `useEffect`에서 `debouncedSearchTerm`가 변경되면 fetch 문을 실행한다. 
+  - 0.3초 뒤 새로운 값으로 변경되면 그 값에 대해 다시 검색을 하게 된다.
 
 ---
 
