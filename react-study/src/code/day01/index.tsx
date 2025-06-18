@@ -3,6 +3,7 @@ import SearchBar from "./components/SearchBar";
 import SearchList from "./components/SearchList";
 import type { User } from "./types";
 import useDebounce from "./useDebounce";
+import AutoCompleteList from "./components/AutoCompleteList";
 
 export default function Day01() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -36,20 +37,23 @@ export default function Day01() {
       }
 
       setCommittedSearchTerm(finalSearchTerm);
+      setAutoCompleteList([]);
     }
   };
 
   return (
-    <>
+    <div className="relative m-4">
       <SearchBar
-        autoCompleteList={autoCompleteList}
         onChange={handleAutoComplete}
         onKeyDown={handleKeyDown}
+      />
+      <AutoCompleteList
+        autoCompleteList={autoCompleteList}
       />
       <SearchList
         commitedSearchTerm={commitedSearchTerm}
         searchList={searchList}
       />
-    </>
+    </div>
   )
 }
