@@ -6,6 +6,7 @@ import useDebounce from "./useDebounce";
 
 export default function Day01() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [commitedSearchTerm, setCommittedSearchTerm] = useState("");
   const [autoCompleteList, setAutoCompleteList] = useState<User[]>([]);
   const [searchList, setSearchList] = useState<User[]>([]);
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
@@ -33,6 +34,8 @@ export default function Day01() {
           .then(res => res.json())
           .then(data => setSearchList(data));
       }
+
+      setCommittedSearchTerm(finalSearchTerm);
     }
   };
 
@@ -44,6 +47,7 @@ export default function Day01() {
         onKeyDown={handleKeyDown}
       />
       <SearchList
+        commitedSearchTerm={commitedSearchTerm}
         searchList={searchList}
       />
     </>
