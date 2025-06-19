@@ -13,7 +13,7 @@ export default function Day01() {
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   useEffect(() => {
-    if (debouncedSearchTerm === "") {
+    if (debouncedSearchTerm === "" || debouncedSearchTerm === commitedSearchTerm) {
       setAutoCompleteList([]);
       return;
     }
@@ -30,26 +30,36 @@ export default function Day01() {
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (event.key === "Enter") {
       const finalSearchTerm = event.currentTarget.value;
-      if (finalSearchTerm) {
-        fetch(`/api/users?search=${encodeURIComponent(finalSearchTerm)}&sort=name&order=asc`)
-          .then(res => res.json())
-          .then(data => setSearchList(data));
+      if (finalSearchTerm !== "") {
+        fetchSearchTerm(finalSearchTerm);
       }
-
-      setCommittedSearchTerm(finalSearchTerm);
-      setAutoCompleteList([]);
     }
   };
+
+  function fetchSearchTerm(searchTerm: string) {
+    setSearchTerm(searchTerm);
+    setAutoCompleteList([]);
+    setCommittedSearchTerm(searchTerm);
+    fetch(`/api/users?search=${encodeURIComponent(searchTerm)}&sort=name&order=asc`)
+      .then(res => res.json())
+      .then(data => setSearchList(data));
+  }
 
   return (
     <div className="relative m-4">
       <SearchBar
+        value={searchTerm}
         onChange={handleAutoComplete}
         onKeyDown={handleKeyDown}
       />
-      <AutoCompleteList
-        autoCompleteList={autoCompleteList}
-      />
+      {
+        autoCompleteList.length > 0 ?
+          <AutoCompleteList
+            autoCompleteList={autoCompleteList}
+            fetchSearchTerm={fetchSearchTerm}
+          /> :
+          null
+      }
       <SearchList
         commitedSearchTerm={commitedSearchTerm}
         searchList={searchList}

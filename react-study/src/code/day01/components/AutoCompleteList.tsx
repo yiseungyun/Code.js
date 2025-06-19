@@ -1,18 +1,26 @@
 import type { User } from "../types";
 
-export default function AutoCompleteList({ autoCompleteList }: { autoCompleteList: User[] }) {
+export default function AutoCompleteList({ autoCompleteList, fetchSearchTerm }: {
+  autoCompleteList: User[],
+  fetchSearchTerm: (searchTerm: string) => void
+}) {
+  function handleClick(name: string) {
+    fetchSearchTerm(name);
+  }
+
   return (
-    <>
-      {
-        autoCompleteList.length === 0 ?
-          null :
-          <div className="absolute z-50 bg-white w-80 p-2">
-            {autoCompleteList.map((user) => {
-              return (
-                <p key={user.id} className="p-1 hover:bg-gray-100">{user.name}</p>)
-            })}
-          </div>
-      }
-    </>
+    <div className="absolute z-50 bg-white w-80 p-2">
+      {autoCompleteList.map((user) => {
+        return (
+          <button
+            key={user.id}
+            className="w-full text-left p-1 hover:bg-gray-100 block"
+            onClick={() => handleClick(user.name)}
+          >
+            {user.name}
+          </button>
+        )
+      })}
+    </div>
   );
 }
