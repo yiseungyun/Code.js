@@ -1,14 +1,19 @@
-import { createContext } from "react";
+import { createContext, useState } from "react";
+import type { ErrorType } from "./ErrorType";
 
-const ErrorContext = createContext(null as string | null);
+export const ErrorContext = createContext<(err: ErrorType) => void>(() => { });
 
 export const ErrorProvider = ({ children }: {
   children: React.ReactNode;
 }) => {
-  const temp = "임시 값";
+  const [errors, setErrors] = useState<string[]>([]);
+
+  const throwError = (errorType: ErrorType) => {
+    console.log(errorType);
+  }
 
   return (
-    <ErrorContext.Provider value={temp}>
+    <ErrorContext.Provider value={throwError}>
       {children}
       {/*토스트 메세지*/}
     </ErrorContext.Provider>
